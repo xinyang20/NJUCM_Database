@@ -1,0 +1,2 @@
+INSERT INTO S (SNO,SNAME,AGE,SEX,DNAME)
+VALUES('S1','Cendy',19,'F','¼ÆËã»ú');
