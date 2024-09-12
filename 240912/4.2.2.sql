@@ -1,0 +1,3 @@
+SELECT *
+FROM S
+WHERE SNAME LIKE '%¿Ó%'

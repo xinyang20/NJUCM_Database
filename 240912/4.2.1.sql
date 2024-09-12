@@ -1,0 +1,3 @@
+SELECT *
+FROM S
+WHERE DNAME='¼ÆËã»ú' AND AGE<20
