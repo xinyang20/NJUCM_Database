@@ -1,0 +1,4 @@
+CREATE VIEW VIEW2 AS
+SELECT SNO,SNAME,2024-AGE AS 出生年份 --没有出生日期，使用年龄求取出生年份
+FROM S
+WHERE DNAME='计算机'
