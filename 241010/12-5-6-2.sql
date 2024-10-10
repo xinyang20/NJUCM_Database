@@ -1,0 +1,3 @@
+GRANT SELECT,UPDATE 
+	ON C 
+	TO teacher

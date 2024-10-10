@@ -1,0 +1,1 @@
+CREATE LOGIN ¸ßÐÄÑô WITH PASSWORD='xinyang'

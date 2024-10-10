@@ -1,0 +1,1 @@
+CREATE USER student1 FOR LOGIN ¸ßÐÄÑô;

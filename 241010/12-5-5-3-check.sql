@@ -1,0 +1,4 @@
+--12-5-5-3²Ù×÷¼ìÑé
+USE studb
+UPDATE SC SET SCORE=78
+	WHERE SNO='S1' AND CNO='C1'

@@ -1,0 +1,4 @@
+--12-5-5-5²Ù×÷
+REVOKE SELECT ON SC
+	FROM teacher1
+	CASCADE

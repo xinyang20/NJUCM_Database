@@ -1,0 +1,3 @@
+REVOKE UPDATE
+	ON C
+	FROM teacher

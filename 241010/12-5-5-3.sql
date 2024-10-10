@@ -1,0 +1,4 @@
+--12-5-5-3²Ù×÷
+REVOKE UPDATE ON SC
+	FROM teacher1
+	CASCADE

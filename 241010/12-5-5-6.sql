@@ -1,0 +1,3 @@
+--12-5-5-6²Ù×÷
+GRANT SELECT,UPDATE ON VIEW1
+	TO teacher1;
