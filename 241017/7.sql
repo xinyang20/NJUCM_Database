@@ -1,0 +1,8 @@
+--将Cure关系中，就诊费用在前10%的总费用打9折
+UPDATE Cure 
+SET FEE = FEE * 0.9
+WHERE FEE IN (
+	SELECT TOP (10) PERCENT FEE
+	FROM CURE
+	ORDER BY FEE DESC
+);
