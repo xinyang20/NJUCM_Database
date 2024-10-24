@@ -1,0 +1,20 @@
+DECLARE @dt1 DATETIME
+DECLARE @i INT
+DECLARE @s CHAR(40)
+DECLARE @hm1 INT
+DECLARE @hm2 INT
+SELECT @dt1=GETDATE()
+SELECT @hm1=DATEPART(hh,@dt1)*3600000+DATEPART(mi,@dt1)*60000+DATEPART(ss,@dt1)*1000+DATEPART(ms,@dt1)
+
+--此行将用测试命令替代
+--CREATE NONCLUSTERED INDEX indexname1 ON itb1(id)--建立id非聚集索引
+--CREATE NONCLUSTERED INDEX indexname1 ON itb1(mm)--建立mm非聚集索引
+--CREATE CLUSTERED INDEX indexname1 ON itb1(id)--建立id聚集索引
+--CREATE CLUSTERED INDEX indexname1 ON itb1(mm)--建立mm聚集索引
+DROP INDEX itb1.indexname1--删除索引
+
+
+SELECT @dt1=GETDATE()
+SELECT @hm2=DATEPART(hh,@dt1)*3600000+DATEPART(mi,@dt1)*60000+DATEPART(ss,@dt1)*1000+DATEPART(ms,@dt1)-@hm1
+SELECT @s='time--'+CONVERT(char(10),@hm2)
+RAISERROR(@s,16,1)
