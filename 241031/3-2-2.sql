@@ -1,0 +1,1 @@
+SP_GRANTDBACCESS 'teacher'

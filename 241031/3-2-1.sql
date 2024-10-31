@@ -1,0 +1,1 @@
+SP_ADDLOGIN 'teacher','teacher','studb'
