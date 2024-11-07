@@ -1,0 +1,1 @@
+EXEC GET_QTY_BY_P 'J1','P3'

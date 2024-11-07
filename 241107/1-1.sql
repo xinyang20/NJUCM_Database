@@ -1,0 +1,12 @@
+--创建一个存储过程SInfo，
+--查询S表中供应商所谓城市为北京的所有供应商信息
+--（供应商代码、供应商姓名、供应商状态）
+IF EXISTS (
+	SELECT NAME FROM SYSOBJECTS
+	WHERE NAME='SInfo' AND TYPE='P')
+DROP PROCEDURE SInfo
+GO
+CREATE PROCEDURE SInfo AS
+SELECT SNO,SNAME,STATUS
+FROM S
+WHERE STATUS='20'
