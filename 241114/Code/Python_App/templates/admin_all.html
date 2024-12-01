@@ -1,0 +1,15 @@
+<h1>所有信息</h1>
+<h2>用户</h2>
+<table>
+    <tr><th>ID</th><th>用户名</th><th>角色</th></tr>
+    {% for user in users %}
+    <tr><td>{{ user.id }}</td><td>{{ user.username }}</td><td>{{ user.role }}</td></tr>
+    {% endfor %}
+</table>
+<h2>患者信息</h2>
+<table>
+    <tr><th>ID</th><th>姓名</th><th>联系方式</th></tr>
+    {% for patient in patients %}
+    <tr><td>{{ patient.patient_id }}</td><td>{{ patient.patient_name }}</td><td>{{ patient.contact_number }}</td></tr>
+    {% endfor %}
+</table>

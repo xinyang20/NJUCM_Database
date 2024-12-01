@@ -1,0 +1,10 @@
+<h1>个人信息</h1>
+<p>姓名: {{ personal_info.patient_name }}</p>
+<p>联系方式: {{ personal_info.contact_number }}</p>
+<h2>处方</h2>
+<table>
+    <tr><th>ID</th><th>取药方式</th><th>用法</th></tr>
+    {% for prescription in prescriptions %}
+    <tr><td>{{ prescription.prescription_id }}</td><td>{{ prescription.pickup_method }}</td><td>{{ prescription.usage_instructions }}</td></tr>
+    {% endfor %}
+</table>
