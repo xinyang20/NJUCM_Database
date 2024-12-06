@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工人信息</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="/dashboard" class="logo">中药代煎系统</a>
+        <div>
+            {% if session['role'] == 'admin' %}
+                <a href="/admin/profile">个人信息</a>
+                <a href="/admin/users">用户管理</a>
+                <a href="/admin/assign_tasks">分配任务</a>
+            {% elif session['role'] == 'patient' %}
+                <a href="/patient/profile">个人信息</a>
+                <a href="/patient/prescriptions">查看处方</a>
+            {% elif session['role'] == 'doctor' %}
+                <a href="/doctor/profile">个人信息</a>
+                <a href="/doctor/prescriptions">我的处方</a>
+                <a href="/doctor/prescriptions/new">开新处方</a>
+            {% elif session['role'] == 'worker' %}
+                <a href="/worker/profile">个人信息</a>
+                <a href="/worker/tasks">我的任务</a>
+            {% endif %}
+            <a href="/logout">注销</a>
+        </div>
+    </div>
+
+    <h1>工人信息</h1>
+
+    <!-- 显示工人信息 -->
+    <h2>基本信息</h2>
+    <table>
+        <tr>
+            <th>UUID</th>
+            <td>{{ session.get('user_id') }}</td>
+        </tr>
+        <tr>
+            <th>工人 ID</th>
+            <td>{{ worker.worker_id }}</td>
+        </tr>
+        <tr>
+            <th>姓名</th>
+            <td>{{ worker.name }}</td>
+        </tr>
+        <tr>
+            <th>年龄</th>
+            <td>{{ worker.age }}</td>
+        </tr>
+        <tr>
+            <th>联系方式</th>
+            <td>{{ worker.contact_number }}</td>
+        </tr>
+    </table>
+
+    <footer>
+        © 2024 中药代煎 系统
+    </footer>
+</body>
+</html>

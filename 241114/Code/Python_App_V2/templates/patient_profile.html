@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>患者个人信息</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+        .modal.active {
+            display: block;
+        }
+        .modal-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        .close-button {
+            background: red;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .save-button {
+            background: green;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/dashboard" class="logo">中药代煎系统</a>
+        <div>
+            {% if session['role'] == 'admin' %}
+                <a href="/admin/profile">个人信息</a>
+                <a href="/admin/users">用户管理</a>
+                <a href="/admin/assign_tasks">分配任务</a>
+            {% elif session['role'] == 'patient' %}
+                <a href="/patient/profile">个人信息</a>
+                <a href="/patient/prescriptions">查看处方</a>
+            {% elif session['role'] == 'doctor' %}
+                <a href="/doctor/profile">个人信息</a>
+                <a href="/doctor/prescriptions">我的处方</a>
+                <a href="/doctor/prescriptions/new">开新处方</a>
+            {% elif session['role'] == 'worker' %}
+                <a href="/worker/profile">个人信息</a>
+                <a href="/worker/tasks">我的任务</a>
+            {% endif %}
+            <a href="/logout">注销</a>
+        </div>
+    </div>
+
+    <h1>患者信息</h1>
+
+    <!-- 显示患者信息 -->
+    <table>
+        <tr>
+            <th>UUID</th>
+            <td>{{ patient_user.uuid }}</td>
+        </tr>
+        <tr>
+            <th>患者 ID</th>
+            <td>{{ patient.patient_id }}</td>
+        </tr>
+        <tr>
+            <th>姓名</th>
+            <td>{{ patient.name }}</td>
+        </tr>
+        <tr>
+            <th>性别</th>
+            <td>{{ patient.gender }}</td>
+        </tr>
+        <tr>
+            <th>年龄</th>
+            <td>{{ patient.age }}</td>
+        </tr>
+        <tr>
+            <th>联系方式</th>
+            <td>{{ patient.contact_number }}</td>
+        </tr>
+    </table>
+
+    <!-- 居中的编辑按钮 -->
+    <div style="margin-top: 20px; text-align: center;">
+        <button onclick="openModal()">编辑信息</button>
+    </div>
+
+
+    <!-- 编辑信息弹窗 -->
+    <div class="modal" id="editModal">
+        <form method="POST">
+            <div class="modal-header">编辑个人信息</div>
+            <label for="name">姓名:</label>
+            <input type="text" id="name" name="name" value="{{ patient.name }}" required>
+
+            <label for="gender">性别:</label>
+            <select id="gender" name="gender" required>
+                <option value="男" {% if patient.gender == '男' %}selected{% endif %}>男</option>
+                <option value="女" {% if patient.gender == '女' %}selected{% endif %}>女</option>
+            </select>
+
+            <label for="age">年龄:</label>
+            <input type="number" id="age" name="age" value="{{ patient.age }}" min="0" required>
+
+            <label for="contact_number">联系方式:</label>
+            <input type="text" id="contact_number" name="contact_number" value="{{ patient.contact_number }}" required>
+
+            <div class="modal-buttons">
+                <button type="submit" class="save-button">保存修改</button>
+                <button type="button" class="close-button" onclick="closeModal()">取消</button>
+            </div>
+        </form>
+    </div>
+
+    <footer>
+        © 2024 中药代煎 系统
+    </footer>
+
+    <script>
+        // 打开弹窗
+        function openModal() {
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>

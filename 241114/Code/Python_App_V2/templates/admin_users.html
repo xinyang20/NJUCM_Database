@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .pagination {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        .pagination button.active {
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+        .filter-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .delete-button {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .delete-button:hover {
+            background-color: darkred;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 30%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/dashboard" class="logo">中药代煎系统</a>
+        <div>
+            {% if session['role'] == 'admin' %}
+                <a href="/admin/profile">个人信息</a>
+                <a href="/admin/users">用户管理</a>
+                <a href="/admin/assign_tasks">分配任务</a>
+            {% elif session['role'] == 'patient' %}
+                <a href="/patient/profile">个人信息</a>
+                <a href="/patient/prescriptions">查看处方</a>
+            {% elif session['role'] == 'doctor' %}
+                <a href="/doctor/profile">个人信息</a>
+                <a href="/doctor/prescriptions">我的处方</a>
+                <a href="/doctor/prescriptions/new">开新处方</a>
+            {% elif session['role'] == 'worker' %}
+                <a href="/worker/profile">个人信息</a>
+                <a href="/worker/tasks">我的任务</a>
+            {% endif %}
+            <a href="/logout">注销</a>
+        </div>
+    </div>
+
+    <h2>用户管理</h2>
+    <form method="POST" action="/admin/users" style="margin-bottom: 20px;">
+        <h3 align="center">添加用户</h3>
+        <label for="username">用户名:</label>
+        <input type="text" id="username" name="username" placeholder="用户名" required oninput="checkUsername()">
+        <span id="username-message" style="font-size: 0.9em; color: gray;">请输入用户名</span>
+
+        <label for="password">密码:</label>
+        <input type="text" id="password" name="password" placeholder="密码" value="123456" required>
+
+        <label for="role-select">角色:</label>
+        <select name="role" id="role-select" onchange="updateRoleForm()" required>
+            <option value="">选择角色</option>
+            <option value="patient">患者</option>
+            <option value="doctor">医生</option>
+            <option value="worker">工人</option>
+            <option value="admin">管理员</option>
+        </select>
+
+        <div id="role-form"></div>
+        <button type="submit">添加用户</button>
+    </form>
+
+    <div class="filter-container">
+        <h3>用户信息</h3>
+        <form method="GET" action="/admin/users" style="display: flex; align-items: center; gap: 20px;">
+            <div>
+                <label for="role-filter">角色:</label>
+                <select name="role" id="role-filter">
+                    <option value="all" {% if selected_role == 'all' %}selected{% endif %}>所有角色</option>
+                    <option value="patient" {% if selected_role == 'patient' %}selected{% endif %}>患者</option>
+                    <option value="doctor" {% if selected_role == 'doctor' %}selected{% endif %}>医生</option>
+                    <option value="worker" {% if selected_role == 'worker' %}selected{% endif %}>工人</option>
+                    <option value="admin" {% if selected_role == 'admin' %}selected{% endif %}>管理员</option>
+                </select>
+            </div>
+            <div>
+                <label for="username-search">用户名:</label>
+                <input
+                    type="text"
+                    id="username-search"
+                    name="username"
+                    placeholder="输入用户名"
+                    value="{{ request.args.get('username', '') }}">
+            </div>
+            <button type="submit">查询</button>
+        </form>
+    </div>
+
+
+
+    <table>
+        <thead>
+            <tr>
+                <th>UUID</th>
+                <th>用户名</th>
+                <th>角色</th>
+                <th>角色 ID</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="userTable">
+            {% for user in users %}
+            <tr class="user-row">
+                <td>{{ user.uuid }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.role }}</td>
+                <td>{{ user.role_id }}</td>
+                <td>
+                    <a href="/admin/users/edit/{{ user.uuid }}">编辑</a>
+                    <button class="delete-button" onclick="openDeleteModal('{{ user.uuid }}')">删除</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination" id="pagination"></div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDeleteModal()">&times;</span>
+            <h2>确认删除用户</h2>
+            <form id="deleteForm" method="POST" action="">
+                <label for="deletePassword">输入密码确认:</label>
+                <input type="password" id="deletePassword" name="password" required>
+                <button type="submit">确认删除</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        © 2024 中药代煎 系统
+    </footer>
+
+    <script>
+        const rowsPerPage = 10;
+        const rows = document.querySelectorAll('.user-row');
+        const pagination = document.getElementById('pagination');
+
+        function displayPage(page) {
+            const start = (page - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+
+            rows.forEach((row, index) => {
+                row.style.display = index >= start && index < end ? '' : 'none';
+            });
+        }
+
+        function setupPagination() {
+            const totalPages = Math.ceil(rows.length / rowsPerPage);
+            pagination.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.className = i === 1 ? 'active' : '';
+                button.addEventListener('click', () => {
+                    document.querySelector('.pagination button.active').classList.remove('active');
+                    button.classList.add('active');
+                    displayPage(i);
+                });
+                pagination.appendChild(button);
+            }
+        }
+
+        displayPage(1);
+        setupPagination();
+
+        function openDeleteModal(uuid) {
+            const modal = document.getElementById('deleteModal');
+            const form = document.getElementById('deleteForm');
+            form.action = `/admin/users/delete/${uuid}`;
+            modal.style.display = 'block';
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            modal.style.display = 'none';
+        }
+
+        async function checkUsername() {
+            const usernameInput = document.getElementById('username');
+            const messageSpan = document.getElementById('username-message');
+            const username = usernameInput.value.trim();
+            if (!username) {
+                messageSpan.textContent = '用户名不能为空';
+                messageSpan.style.color = 'red';
+                return;
+            }
+            try {
+                const response = await fetch(`/admin/users/validate_username?username=${encodeURIComponent(username)}`);
+                const data = await response.json();
+                if (data.valid) {
+                    messageSpan.textContent = data.message;
+                    messageSpan.style.color = 'green';
+                } else {
+                    messageSpan.textContent = data.message;
+                    messageSpan.style.color = 'red';
+                }
+            } catch (error) {
+                messageSpan.textContent = '验证失败，请稍后重试';
+                messageSpan.style.color = 'red';
+            }
+        }
+
+        function updateRoleForm() {
+            const role = document.getElementById('role-select').value;
+            const roleForm = document.getElementById('role-form');
+            roleForm.innerHTML = '';
+            if (role === 'patient') {
+                roleForm.innerHTML = `
+                    <label for="name">姓名:</label>
+                    <input type="text" name="name" placeholder="姓名" required>
+                    <label for="gender">性别:</label>
+                    <select name="gender" required>
+                        <option value="">选择性别</option>
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                    <label for="age">年龄:</label>
+                    <input type="number" name="age" placeholder="年龄" required>
+                    <label for="contact_number">联系方式:</label>
+                    <input type="text" name="contact_number" placeholder="联系方式" required>
+                `;
+            } else if (role === 'doctor') {
+                roleForm.innerHTML = `
+                    <label for="name">姓名:</label>
+                    <input type="text" name="name" placeholder="姓名" required>
+                    <label for="gender">性别:</label>
+                    <select name="gender" required>
+                        <option value="">选择性别</option>
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                    <label for="department">科室:</label>
+                    <input type="text" name="department" placeholder="科室" required>
+                    <label for="title">职称:</label>
+                    <input type="text" name="title" placeholder="职称" required>
+                    <label for="contact_number">联系方式:</label>
+                    <input type="text" name="contact_number" placeholder="联系方式" required>
+                    <label for="doctor_id">医生 ID (规则生成):</label>
+                    <input type="number" name="doctor_id" placeholder="医生 ID" required>
+                `;
+            } else if (role === 'worker') {
+                roleForm.innerHTML = `
+                    <label for="name">姓名:</label>
+                    <input type="text" name="name" placeholder="姓名" required>
+                    <label for="age">年龄:</label>
+                    <input type="number" name="age" placeholder="年龄" required>
+                    <label for="contact_number">联系方式:</label>
+                    <input type="text" name="contact_number" placeholder="联系方式" required>
+                `;
+            } else if (role === 'admin') {
+                roleForm.innerHTML = `
+                    <label for="name">姓名:</label>
+                    <input type="text" name="name" placeholder="姓名" required>
+                    <label for="contact_number">联系方式:</label>
+                    <input type="text" name="contact_number" placeholder="联系方式" required>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="/dashboard" class="logo">中药代煎系统</a>
+        <div>
+            {% if session['role'] == 'admin' %}
+                <a href="/admin/profile">个人信息</a>
+                <a href="/admin/users">用户管理</a>
+                <a href="/admin/assign_tasks">分配任务</a>
+            {% elif session['role'] == 'patient' %}
+                <a href="/patient/profile">个人信息</a>
+                <a href="/patient/prescriptions">查看处方</a>
+            {% elif session['role'] == 'doctor' %}
+                <a href="/doctor/profile">个人信息</a>
+                <a href="/doctor/prescriptions">我的处方</a>
+                <a href="/doctor/prescriptions/new">开新处方</a>
+            {% elif session['role'] == 'worker' %}
+                <a href="/worker/profile">个人信息</a>
+                <a href="/worker/tasks">我的任务</a>
+            {% endif %}
+<!--            <a href="/logout">注销</a>-->
+        </div>
+    </div>
+    <h1>登录</h1>
+    <form method="POST" action="/login">
+        <label for="username">用户名:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="password">密码:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">登录</button>
+    </form>
+    <footer>
+        © 2024 中药代煎 系统
+    </footer>
+</body>
+</html>

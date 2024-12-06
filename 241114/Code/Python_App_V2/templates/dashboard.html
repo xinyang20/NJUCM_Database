@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通用仪表盘</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .dashboard-options {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .dashboard-options ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .dashboard-options li {
+            margin: 10px 0;
+        }
+
+        .dashboard-options a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .dashboard-options a:hover {
+            background-color: #0056b3;
+        }
+
+        .profile-link {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .profile-link a {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+        }
+
+        .profile-link a:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/dashboard" class="logo">中药代煎系统</a>
+        <div>
+            <a href="/logout">注销</a>
+        </div>
+    </div>
+
+    <h1 style="text-align: center;">欢迎, {{ session.get('name') }}</h1>
+
+    <!-- 新增入口 -->
+<!--    <div class="profile-link">-->
+<!--        <a href="/profile">查看个人信息</a>-->
+<!--    </div>-->
+
+    <div class="dashboard-options">
+        {% if session['role'] == 'admin' %}
+        <ul>
+            <li><a href="/admin/profile">个人信息</a></li>
+            <li><a href="/admin/users">用户管理</a></li>
+            <li><a href="/admin/assign_tasks">分配任务</a></li>
+        </ul>
+        {% elif session['role'] == 'patient' %}
+        <ul>
+            <li><a href="/patient/profile">个人信息</a></li>
+            <li><a href="/patient/prescriptions">查看处方</a></li>
+        </ul>
+        {% elif session['role'] == 'doctor' %}
+        <ul>
+            <li><a href="/doctor/profile">个人信息</a></li>
+            <li><a href="/doctor/prescriptions">我的处方</a></li>
+            <li><a href="/doctor/prescriptions/new">开新处方</a></li>
+        </ul>
+        {% elif session['role'] == 'worker' %}
+        <ul>
+            <li><a href="/worker/profile">个人信息</a></li>
+            <li><a href="/worker/tasks">我的任务</a></li>
+        </ul>
+        {% endif %}
+    </div>
+
+    <footer style="text-align: center; margin-top: 20px;">
+        © 2024 中药代煎 系统
+    </footer>
+</body>
+</html>

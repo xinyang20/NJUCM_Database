@@ -3,12 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <title>仪表盘</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>欢迎, {{ username }}</h1>
-    <p><a href="/admin/all">查看所有信息（管理员）</a></p>
-    <p><a href="/doctor/patients">查看我的患者（医生）</a></p>
-    <p><a href="/patient/info">查看我的信息（患者）</a></p>
-    <p><a href="/logout">注销</a></p>
+    <div class="navbar">
+        <span>中药管理系统</span>
+        <a href="/logout">注销</a>
+    </div>
+    <h1 style="text-align: center; margin-top: 20px;">
+        {{ welcome_message | safe }}
+    </h1>
+    <div style="text-align: center; margin-top: 20px;">
+        {% if role == 'admin' %}
+        <a href="/admin/all">查看所有信息</a>
+
+        {% elif role == 'doctor' %}
+        <a href="/doctor/info">我的信息</a>
+        <a href="/doctor/patients">查看患者</a>
+
+        {% elif role == 'patient' %}
+        <a href="/patient/personal_info">个人信息</a><br>
+        <a href="/patient/appointment">挂号</a><br>
+        <a href="/patient/prescriptions">处方</a>
+
+        {% elif role == 'decoction_worker' %}
+            {% if is_factory_manager %}
+            <!-- 工厂管理员的选项 -->
+            <a href="/factory/workers">查看工人信息</a><br>
+            <a href="/factory/orders">查看所有煎药订单</a><br>
+            <a href="/factory/assign_task">分配任务</a>
+            {% else %}
+            <!-- 普通工人的选项 -->
+            <a href="/worker/prescriptions">我的任务</a>
+            {% endif %}
+        {% endif %}
+    </div>
+    <footer>
+        © 2024 中药管理系统
+    </footer>
 </body>
 </html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="/dashboard" class="logo">SDDB 系统</a>
+        <div>
+            {% if session['role'] == 'admin' %}
+                <a href="/admin/profile">个人信息</a>
+                <a href="/admin/users">用户管理</a>
+                <a href="/admin/assign_tasks">分配任务</a>
+            {% elif session['role'] == 'patient' %}
+                <a href="/patient/profile">个人信息</a>
+                <a href="/patient/prescriptions">查看处方</a>
+            {% elif session['role'] == 'doctor' %}
+                <a href="/doctor/profile">个人信息</a>
+                <a href="/doctor/prescriptions">我的处方</a>
+                <a href="/doctor/prescriptions/new">开新处方</a>
+            {% elif session['role'] == 'worker' %}
+                <a href="/worker/profile">个人信息</a>
+                <a href="/worker/tasks">我的任务</a>
+            {% endif %}
+            <a href="/logout">注销</a>
+        </div>
+    </div>
+    <h1>用户管理</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>UUID</th>
+                <th>用户名</th>
+                <th>角色</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.uuid }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.role }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <footer>
+        © 2024 SDDB 系统
+    </footer>
+</body>
+</html>

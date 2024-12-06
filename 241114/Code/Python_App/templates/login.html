@@ -3,15 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>登录</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+    <div class="navbar">
+        <span>中药管理系统</span>
+    </div>
     <h1>登录</h1>
     <form method="POST" action="/login">
-        <label>用户名:</label>
-        <input type="text" name="username" required><br>
-        <label>密码:</label>
-        <input type="password" name="password" required><br>
+        <label for="username">用户名:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="password">密码:</label>
+        <input type="password" id="password" name="password" required>
         <button type="submit">登录</button>
     </form>
+    <footer>
+        © 2024 中药管理系统
+    </footer>
 </body>
 </html>

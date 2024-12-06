@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>处方详情</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="navbar">
+        <span>中药管理系统</span>
+        <a href="/patient/personal_info" class="section-link">个人信息</a>
+        <a href="/patient/prescriptions" class="section-link">我的处方</a>
+        <a href="/">返回主页</a>
+    </div>
+
+    <h1>处方详情</h1>
+    <div style="margin: 20px auto; max-width: 600px;">
+        <table class="data-table">
+            <tr>
+                <th>处方ID</th>
+                <td>{{ prescription.prescription_id }}</td>
+            </tr>
+            <tr>
+                <th>患者姓名</th>
+                <td>{{ patient_name }}</td>
+            </tr>
+            <tr>
+                <th>医生姓名</th>
+                <td>{{ doctor_name }}</td>
+            </tr>
+            <tr>
+                <th>取药方式</th>
+                <td>{{ prescription.pickup_method }}</td>
+            </tr>
+            <tr>
+                <th>处方日期</th>
+                <td>{{ prescription.prescription_date }}</td>
+            </tr>
+            <tr>
+                <th>处方金额</th>
+                <td>{{ prescription.prescription_amount }}</td>
+            </tr>
+            <tr>
+                <th>药材总重量</th>
+                <td>{{ prescription.prescription_weight }}</td>
+            </tr>
+            <tr>
+                <th>剂数</th>
+                <td>{{ prescription.dose_count }}</td>
+            </tr>
+            <tr>
+                <th>用法说明</th>
+                <td>{{ prescription.usage_instructions }}</td>
+            </tr>
+            <tr>
+                <th>预期取药时间</th>
+                <td>{{ prescription.expected_pickup_time }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <footer>
+        © 2024 中药管理系统
+    </footer>
+</body>
+</html>

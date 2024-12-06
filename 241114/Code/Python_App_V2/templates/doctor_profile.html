@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医生个人信息</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+        .modal.active {
+            display: block;
+        }
+        .modal-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        .close-button {
+            background: red;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .save-button {
+            background: green;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/dashboard" class="logo">中药代煎系统</a>
+        <div>
+            {% if session['role'] == 'admin' %}
+                <a href="/admin/profile">个人信息</a>
+                <a href="/admin/users">用户管理</a>
+                <a href="/admin/assign_tasks">分配任务</a>
+            {% elif session['role'] == 'patient' %}
+                <a href="/patient/profile">个人信息</a>
+                <a href="/patient/prescriptions">查看处方</a>
+            {% elif session['role'] == 'doctor' %}
+                <a href="/doctor/profile">个人信息</a>
+                <a href="/doctor/prescriptions">我的处方</a>
+                <a href="/doctor/prescriptions/new">开新处方</a>
+            {% elif session['role'] == 'worker' %}
+                <a href="/worker/profile">个人信息</a>
+                <a href="/worker/tasks">我的任务</a>
+            {% endif %}
+            <a href="/logout">注销</a>
+        </div>
+    </div>
+
+    <h1>医生信息</h1>
+
+    <!-- 显示医生信息 -->
+    <table>
+        <tr>
+            <th>UUID</th>
+            <td>{{ doctor_user.uuid }}</td>
+        </tr>
+        <tr>
+            <th>医生 ID</th>
+            <td>{{ doctor.doctor_id }}</td>
+        </tr>
+        <tr>
+            <th>姓名</th>
+            <td>{{ doctor.name }}</td>
+        </tr>
+        <tr>
+            <th>性别</th>
+            <td>{{ doctor.gender }}</td>
+        </tr>
+        <tr>
+            <th>科室</th>
+            <td>{{ doctor.department }}</td>
+        </tr>
+        <tr>
+            <th>职称</th>
+            <td>{{ doctor.title }}</td>
+        </tr>
+        <tr>
+            <th>联系方式</th>
+            <td>{{ doctor.contact_number }}</td>
+        </tr>
+    </table>
+
+    <!-- 居中的编辑按钮 -->
+    <div style="margin-top: 20px; text-align: center;">
+        <button onclick="openModal()">编辑信息</button>
+    </div>
+
+
+
+    <!-- 编辑信息弹窗 -->
+    <div class="modal" id="editModal">
+        <form method="POST">
+            <div class="modal-header">编辑个人信息</div>
+            <label for="name">姓名:</label>
+            <input type="text" id="name" name="name" value="{{ doctor.name }}" required>
+
+            <label for="gender">性别:</label>
+            <select id="gender" name="gender" required>
+                <option value="男" {% if doctor.gender == '男' %}selected{% endif %}>男</option>
+                <option value="女" {% if doctor.gender == '女' %}selected{% endif %}>女</option>
+            </select>
+
+            <label for="department">科室:</label>
+            <select id="department" name="department" required>
+                <option value="内科" {% if doctor.department == '内科' %}selected{% endif %}>内科</option>
+                <option value="外科" {% if doctor.department == '外科' %}selected{% endif %}>外科</option>
+                <option value="儿科" {% if doctor.department == '儿科' %}selected{% endif %}>儿科</option>
+                <option value="妇科" {% if doctor.department == '妇科' %}selected{% endif %}>妇科</option>
+            </select>
+
+            <label for="title">职称:</label>
+            <select id="title" name="title" required>
+                <option value="主任医师" {% if doctor.title == '主任医师' %}selected{% endif %}>主任医师</option>
+                <option value="副主任医师" {% if doctor.title == '副主任医师' %}selected{% endif %}>副主任医师</option>
+                <option value="主治医师" {% if doctor.title == '主治医师' %}selected{% endif %}>主治医师</option>
+                <option value="住院医师" {% if doctor.title == '住院医师' %}selected{% endif %}>住院医师</option>
+            </select>
+
+            <label for="contact_number">联系方式:</label>
+            <input type="text" id="contact_number" name="contact_number" value="{{ doctor.contact_number }}" required>
+
+            <div class="modal-buttons">
+                <button type="submit" class="save-button">保存修改</button>
+                <button type="button" class="close-button" onclick="closeModal()">取消</button>
+            </div>
+        </form>
+    </div>
+    <footer>
+        © 2024 中药代煎 系统
+    </footer>
+
+    <script>
+        // 打开弹窗
+        function openModal() {
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>

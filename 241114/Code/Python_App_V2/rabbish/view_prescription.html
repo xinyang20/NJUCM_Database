@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>处方详情</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="/dashboard" class="logo">SDDB 系统</a>
+        <div>
+            {% if session['role'] == 'admin' %}
+                <a href="/admin/profile">个人信息</a>
+                <a href="/admin/users">用户管理</a>
+                <a href="/admin/assign_tasks">分配任务</a>
+            {% elif session['role'] == 'patient' %}
+                <a href="/patient/profile">个人信息</a>
+                <a href="/patient/prescriptions">查看处方</a>
+            {% elif session['role'] == 'doctor' %}
+                <a href="/doctor/profile">个人信息</a>
+                <a href="/doctor/prescriptions">我的处方</a>
+                <a href="/doctor/prescriptions/new">开新处方</a>
+            {% elif session['role'] == 'worker' %}
+                <a href="/worker/profile">个人信息</a>
+                <a href="/worker/tasks">我的任务</a>
+            {% endif %}
+            <a href="/logout">注销</a>
+        </div>
+    </div>
+
+    <h1>处方详情</h1>
+
+    <!-- 显示处方基本信息 -->
+    <h2>基本信息</h2>
+    <ul>
+        <li><strong>处方 ID：</strong>{{ prescription.prescription_id }}</li>
+        <li><strong>金额：</strong>{{ prescription.amount }}</li>
+        <li><strong>状态：</strong>{{ prescription.status }}</li>
+        <li><strong>开方时间：</strong>{{ prescription.date }}</li>
+        <li><strong>用药说明：</strong>{{ prescription.usage_instructions }}</li>
+    </ul>
+
+    <!-- 显示代煎任务状态 -->
+    <h2>代煎进度</h2>
+    {% if task %}
+    <ul>
+        <li><strong>收方工人：</strong>{{ task.receive_worker_name or '未分配' }}</li>
+        <li><strong>收方时间：</strong>{{ task.receive_time or '未完成' }}</li>
+        <li><strong>配方工人：</strong>{{ task.form_worker_name or '未分配' }}</li>
+        <li><strong>配方时间：</strong>{{ task.form_time or '未完成' }}</li>
+        <li><strong>煎药工人：</strong>{{ task.decoction_worker_name or '未分配' }}</li>
+        <li><strong>煎药开始时间：</strong>{{ task.decoction_start_time or '未开始' }}</li>
+        <li><strong>煎药结束时间：</strong>{{ task.decoction_end_time or '未完成' }}</li>
+    </ul>
+    {% else %}
+    <p>该处方尚未分配代煎任务。</p>
+    {% endif %}
+
+    <footer>
+        © 2024 SDDB 系统
+    </footer>
+</body>
+</html>

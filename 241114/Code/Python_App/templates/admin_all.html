@@ -1,15 +1,128 @@
-<h1>所有信息</h1>
-<h2>用户</h2>
-<table>
-    <tr><th>ID</th><th>用户名</th><th>角色</th></tr>
-    {% for user in users %}
-    <tr><td>{{ user.id }}</td><td>{{ user.username }}</td><td>{{ user.role }}</td></tr>
-    {% endfor %}
-</table>
-<h2>患者信息</h2>
-<table>
-    <tr><th>ID</th><th>姓名</th><th>联系方式</th></tr>
-    {% for patient in patients %}
-    <tr><td>{{ patient.patient_id }}</td><td>{{ patient.patient_name }}</td><td>{{ patient.contact_number }}</td></tr>
-    {% endfor %}
-</table>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员 - 查看信息</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script>
+        // JavaScript: 分页功能
+        function paginate(tableId) {
+            const table = document.getElementById(tableId);
+            const rows = table.querySelectorAll('tbody tr');
+            const rowsPerPage = 10;
+            const totalPages = Math.ceil(rows.length / rowsPerPage);
+            let currentPage = 1;
+
+            // 创建分页导航
+            const pagination = document.getElementById(tableId + '-pagination');
+            pagination.innerHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                pageButton.onclick = function () {
+                    currentPage = i;
+                    updateTable();
+                };
+                pagination.appendChild(pageButton);
+            }
+
+            // 更新表格显示
+            function updateTable() {
+                rows.forEach((row, index) => {
+                    row.style.display =
+                        index >= (currentPage - 1) * rowsPerPage &&
+                        index < currentPage * rowsPerPage
+                            ? 'table-row'
+                            : 'none';
+                });
+            }
+
+            // 初始化表格
+            updateTable();
+        }
+
+        // 显示指定表格并初始化分页
+        function showTable(tableId) {
+            // 隐藏所有表格
+            document.querySelectorAll('.data-table').forEach(table => {
+                table.style.display = 'none';
+            });
+            // 隐藏所有分页
+            document.querySelectorAll('.pagination').forEach(pagination => {
+                pagination.style.display = 'none';
+            });
+            // 显示指定表格和分页
+            document.getElementById(tableId).style.display = 'table';
+            document.getElementById(tableId + '-pagination').style.display = 'block';
+
+            // 初始化分页
+            paginate(tableId);
+        }
+    </script>
+</head>
+<body>
+    <div class="navbar">
+        <span>中药管理系统</span>
+        <button onclick="showTable('users-table')">用户信息</button>
+        <button onclick="showTable('doctors-table')">医生信息</button>
+        <button onclick="showTable('patients-table')">患者信息</button>
+        <a href="/">返回主页</a>
+    </div>
+
+    <h1 class="table-title" id="users-table-title" style="display: block;">用户信息</h1>
+    <table id="users-table" class="data-table" style="display: table;">
+        <thead>
+            <tr><th>账号ID</th><th>用户名</th><th>角色</th><th>关联ID</th></tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.account_id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.role }}</td>
+                <td>{{ user.related_id }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div id="users-table-pagination" class="pagination" style="display: block;"></div>
+
+    <h1 class="table-title" id="doctors-table-title" style="display: none;">医生信息</h1>
+    <table id="doctors-table" class="data-table" style="display: none;">
+        <thead>
+            <tr><th>医生ID</th><th>姓名</th><th>科室</th></tr>
+        </thead>
+        <tbody>
+            {% for doctor in doctors %}
+            <tr>
+                <td>{{ doctor.doctor_id }}</td>
+                <td>{{ doctor.doctor_name }}</td>
+                <td>{{ doctor.department_name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div id="doctors-table-pagination" class="pagination" style="display: none;"></div>
+
+    <h1 class="table-title" id="patients-table-title" style="display: none;">患者信息</h1>
+    <table id="patients-table" class="data-table" style="display: none;">
+        <thead>
+            <tr><th>患者ID</th><th>姓名</th><th>联系方式</th></tr>
+        </thead>
+        <tbody>
+            {% for patient in patients %}
+            <tr>
+                <td>{{ patient.patient_id }}</td>
+                <td>{{ patient.patient_name }}</td>
+                <td>{{ patient.contact_number }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div id="patients-table-pagination" class="pagination" style="display: none;"></div>
+
+    <footer>
+        © 2024 中药管理系统
+    </footer>
+</body>
+</html>

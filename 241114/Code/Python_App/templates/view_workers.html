@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>工人信息</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="navbar">
+        <span>中药管理系统 - 工厂管理员</span>
+        <a href="/">返回仪表盘</a>
+    </div>
+    <h1>工人信息</h1>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>工人ID</th>
+                <th>用户名</th>
+                <th>角色</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for worker in workers %}
+            <tr>
+                <td>{{ worker.id }}</td>
+                <td>{{ worker.username }}</td>
+                <td>{{ worker.role }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

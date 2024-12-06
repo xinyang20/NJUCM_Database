@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>我的信息</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="navbar">
+        <span>中药管理系统</span>
+        <a href="/">返回主页</a>
+    </div>
+
+    <h1>我的信息</h1>
+    <div style="margin: 20px auto; max-width: 600px;">
+        <table class="data-table">
+            <tr>
+                <th>医生ID</th>
+                <td>{{ doctor.doctor_id }}</td>
+            </tr>
+            <tr>
+                <th>姓名</th>
+                <td>{{ doctor.doctor_name }}</td>
+            </tr>
+            <tr>
+                <th>科室</th>
+                <td>{{ doctor.department_name }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <footer>
+        © 2024 中药管理系统
+    </footer>
+</body>
+</html>

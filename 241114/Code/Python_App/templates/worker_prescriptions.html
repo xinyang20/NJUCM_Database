@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>我的处方任务</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="navbar">
+        <span>中药管理系统</span>
+        <a href="/">返回主页</a>
+    </div>
+
+    <h1>我的处方任务</h1>
+    <table class="data-table">
+        <tr>
+            <th>处方ID</th>
+            <th>患者ID</th>
+            <th>任务</th>
+        </tr>
+        {% for prescription in prescriptions %}
+        <tr>
+            <td><a href="{{ url_for('worker_prescription', decoction_id=prescription.decoction_id) }}">{{ prescription.prescription_id }}</a></td>
+            <td>{{ prescription.prescription.patient_id }}</td>
+            <td>
+                {% if prescription.formulation_staff == username %}
+                    配方
+                {% elif prescription.soaking_staff == username %}
+                    浸泡
+                {% elif prescription.decoction_staff == username %}
+                    煎制
+                {% elif prescription.print_staff == username %}
+                    打印标签
+                {% else %}
+                    未分配
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

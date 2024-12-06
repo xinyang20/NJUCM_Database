@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>挂号</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* 调整搜索模块尺寸 */
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+
+        .search-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .search-input,
+        .search-select {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            height: 44px; /* 设置统一的高度 */
+            box-sizing: border-box; /* 确保内边距和边框不影响高度 */
+        }
+
+        .search-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-button:hover {
+            background-color: #004d99;
+        }
+
+        /* 分页导航样式 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .pagination button:hover {
+            background-color: #004d99;
+        }
+    </style>
+    <script>
+        // JavaScript: 分页功能
+        function paginate(tableId) {
+            const table = document.getElementById(tableId);
+            const rows = table.querySelectorAll('tbody tr');
+            const rowsPerPage = 10;
+            const totalPages = Math.ceil(rows.length / rowsPerPage);
+            let currentPage = 1;
+
+            // 创建分页导航
+            const pagination = document.getElementById(tableId + '-pagination');
+            pagination.innerHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                pageButton.onclick = function () {
+                    currentPage = i;
+                    updateTable();
+                };
+                pagination.appendChild(pageButton);
+            }
+
+            // 更新表格显示
+            function updateTable() {
+                rows.forEach((row, index) => {
+                    row.style.display =
+                        index >= (currentPage - 1) * rowsPerPage &&
+                        index < currentPage * rowsPerPage
+                            ? 'table-row'
+                            : 'none';
+                });
+            }
+
+            // 初始化表格
+            updateTable();
+        }
+
+        // 初始化分页功能
+        document.addEventListener('DOMContentLoaded', function () {
+            paginate('doctors-table');
+        });
+    </script>
+</head>
+<body>
+    <div class="navbar">
+        <span>中药管理系统</span>
+        <a href="/">返回主页</a>
+    </div>
+
+    <h1>挂号</h1>
+    <form method="POST" class="search-container">
+        <!-- 第一行：搜索框和科室选择 -->
+        <div class="search-row">
+            <input
+                type="text"
+                name="search_query"
+                id="search_query"
+                class="search-input"
+                placeholder="请输入医生名称"
+            />
+            <select name="selected_department" id="department_dropdown" class="search-select">
+                <option value="">选择科室</option>
+                {% for department in department_list %}
+                <option value="{{ department }}">{{ department }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <!-- 第二行：搜索按钮 -->
+        <div class="search-row">
+            <button type="submit" class="search-button">搜索</button>
+        </div>
+    </form>
+
+    <h2 class="table-title" id="doctors-table-title" style="display: block;">医生信息</h2>
+    <table id="doctors-table" class="data-table" style="display: table; margin: 0 auto;">
+        <thead>
+            <tr>
+                <th>医生ID</th>
+                <th>姓名</th>
+                <th>科室</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doctor in doctors %}
+            <tr>
+                <td>{{ doctor.doctor_id }}</td>
+                <td>{{ doctor.doctor_name }}</td>
+                <td>{{ doctor.department_name }}</td>
+                <td>
+                    <a href="{{ url_for('register_doctor', doctor_id=doctor.doctor_id) }}">挂号</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div id="doctors-table-pagination" class="pagination"></div>
+
+    <footer>
+        © 2024 中药管理系统
+    </footer>
+</body>
+</html>

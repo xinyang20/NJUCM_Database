@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员个人信息</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .profile-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .profile-container h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-container p {
+            margin: 10px 0;
+        }
+
+        .edit-button {
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .edit-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 1000;
+            width: 300px;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-header {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .modal button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .modal button:hover {
+            background-color: #0056b3;
+        }
+
+        .modal .close-button {
+            background-color: #d9534f;
+        }
+
+        .modal .close-button:hover {
+            background-color: #c9302c;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/dashboard" class="logo">中药代煎系统</a>
+        <div>
+            {% if session['role'] == 'admin' %}
+                <a href="/admin/profile">个人信息</a>
+                <a href="/admin/users">用户管理</a>
+                <a href="/admin/assign_tasks">分配任务</a>
+            {% elif session['role'] == 'patient' %}
+                <a href="/patient/profile">个人信息</a>
+                <a href="/patient/prescriptions">查看处方</a>
+            {% elif session['role'] == 'doctor' %}
+                <a href="/doctor/profile">个人信息</a>
+                <a href="/doctor/prescriptions">我的处方</a>
+                <a href="/doctor/prescriptions/new">开新处方</a>
+            {% elif session['role'] == 'worker' %}
+                <a href="/worker/profile">个人信息</a>
+                <a href="/worker/tasks">我的任务</a>
+            {% endif %}
+            <a href="/logout">注销</a>
+        </div>
+    </div>
+
+    <h1>管理员信息</h1>
+
+    <!-- 显示管理员信息 -->
+    <table>
+        <tr>
+            <th>UUID</th>
+            <td>{{ session.get('user_id') }}</td>
+        </tr>
+        <tr>
+            <th>管理员 ID</th>
+            <td>{{ admin.admin_id }}</td>
+        </tr>
+        <tr>
+            <th>姓名</th>
+            <td>{{ admin.name }}</td>
+        </tr>
+        <tr>
+            <th>联系方式</th>
+            <td>{{ admin.contact_number }}</td>
+        </tr>
+    </table>
+
+    <!-- 居中的编辑按钮 -->
+    <div style="margin-top: 20px; text-align: center;">
+        <button class="edit-button" onclick="openModal()">编辑信息</button>
+    </div>
+
+
+    <!-- 编辑信息弹窗 -->
+    <div class="modal" id="editModal">
+        <form method="POST">
+            <div class="modal-header">编辑个人信息</div>
+            <input type="text" id="name" name="name" placeholder="姓名" value="{{ admin.name }}" required>
+            <input type="text" id="contact_number" name="contact_number" placeholder="联系方式" value="{{ admin.contact_number }}" required>
+            <button type="submit">保存修改</button>
+            <button type="button" class="close-button" onclick="closeModal()">取消</button>
+        </form>
+    </div>
+
+    <footer>
+        © 2024 中药代煎 系统
+    </footer>
+
+    <script>
+        // 打开弹窗
+        function openModal() {
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>

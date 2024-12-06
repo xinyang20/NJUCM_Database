@@ -1,3 +1,8 @@
+<link rel="stylesheet" href="/static/style.css">
+<div class="navbar">
+    <span>中药管理系统</span>
+    <a href="/">返回主页</a>
+</div>
 <h1>我的患者</h1>
 <table>
     <tr><th>ID</th><th>姓名</th><th>联系方式</th></tr>
@@ -5,3 +10,6 @@
     <tr><td>{{ patient.patient_id }}</td><td>{{ patient.patient_name }}</td><td>{{ patient.contact_number }}</td></tr>
     {% endfor %}
 </table>
+<footer>
+        © 2024 中药管理系统
+</footer>

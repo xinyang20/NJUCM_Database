@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>我的处方</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="navbar">
+        <span>中药管理系统</span>
+        <a href="/patient/personal_info" class="section-link">个人信息</a>
+        <a href="/patient/prescriptions" class="section-link">我的处方</a>
+        <a href="/">返回主页</a>
+    </div>
+
+    <h1>我的处方</h1>
+    <table class="data-table" style="margin: 20px auto;">
+        <tr><th>ID</th><th>取药方式</th><th>用法</th></tr>
+        {% for prescription in prescriptions %}
+        <tr>
+            <!-- 添加链接到详细处方页面 -->
+            <td><a href="{{ url_for('prescription_detail', prescription_id=prescription.prescription_id) }}">{{ prescription.prescription_id }}</a></td>
+            <td>{{ prescription.pickup_method }}</td>
+            <td>{{ prescription.usage_instructions }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <footer>
+        © 2024 中药管理系统
+    </footer>
+</body>
+</html>

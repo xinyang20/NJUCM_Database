@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>操作处方</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="navbar">
+        <span>中药管理系统</span>
+        <a href="/">返回任务列表</a>
+    </div>
+
+    <h1>处方详情</h1>
+    <table class="data-table">
+        <tr>
+            <th>处方ID</th>
+            <td>{{ decoction_record.prescription_id }}</td>
+        </tr>
+        <tr>
+            <th>患者ID</th>
+            <td>{{ decoction_record.prescription.patient_id }}</td>
+        </tr>
+    </table>
+
+    <form method="POST">
+        <button type="submit" name="action" value="formulation">完成配方</button>
+        <button type="submit" name="action" value="soaking">完成浸泡</button>
+        <button type="submit" name="action" value="decoction">完成煎制</button>
+        <button type="submit" name="action" value="print">完成打印</button>
+    </form>
+</body>
+</html>
