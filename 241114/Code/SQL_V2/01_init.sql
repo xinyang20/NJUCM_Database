@@ -15,27 +15,6 @@ CREATE TABLE users (
     role_id INT NULL                                  -- 角色表主键 ID，作为外键
 );
 GO
--- 关联到患者表
-ALTER TABLE users
-ADD CONSTRAINT FK_users_patients FOREIGN KEY (role_id)
-REFERENCES patients(patient_id);
-
--- 关联到医生表
-ALTER TABLE users
-ADD CONSTRAINT FK_users_doctors FOREIGN KEY (role_id)
-REFERENCES doctors(doctor_id);
-
--- 关联到工人表
-ALTER TABLE users
-ADD CONSTRAINT FK_users_workers FOREIGN KEY (role_id)
-REFERENCES workers(worker_id);
-
--- 关联到管理员表
-ALTER TABLE users
-ADD CONSTRAINT FK_users_admins FOREIGN KEY (role_id)
-REFERENCES admins(admin_id);
-
-GO
 
 -- 创建患者表
 CREATE TABLE patients (

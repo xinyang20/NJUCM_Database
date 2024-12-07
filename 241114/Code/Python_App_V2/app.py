@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash , jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import uuid
@@ -127,11 +127,53 @@ def login():
             flash('用户名或密码错误!', 'danger')
     return render_template('login.html')
 
+# 注册模块
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        # 获取表单数据
+        username = request.form.get('username')
+        password = request.form.get('password', '123456')  # 默认密码
+        name = request.form.get('name')
+        gender = request.form.get('gender')
+        age = request.form.get('age')
+        contact_number = request.form.get('contact_number')
+
+        # 验证角色（只能是患者）
+        role = 'patient'
+
+        # 检查用户名是否已存在
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            flash(f"用户名 {username} 已存在，请选择其他用户名!", 'danger')
+            return redirect(url_for('register'))
+
+        # 创建患者信息
+        try:
+            new_patient = Patient(name=name, gender=gender, age=age, contact_number=contact_number)
+            db.session.add(new_patient)
+            db.session.flush()  # 获取生成的 patient_id
+            role_id = new_patient.patient_id
+
+            # 创建用户（仅患者角色）
+            new_user = User(username=username, password=password, role=role, role_id=role_id)
+            db.session.add(new_user)
+            db.session.commit()
+
+            flash(f"用户 {username} 注册成功! UUID: {new_user.uuid}, 角色: {role}, 角色ID: {role_id}", 'success')
+            return redirect(url_for('login'))  # 注册成功后重定向到登录页面
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"注册失败: {str(e)}", 'danger')
+    return render_template('register.html')
+
 # 注销模块
 @app.route('/logout')
 def logout():
     session.clear()
-    flash('已注销!', 'info')
+    # flash('已注销!', 'info')
+    flash(' ', 'info')
     return redirect(url_for('login'))
 
 # 通用仪表盘
@@ -167,7 +209,6 @@ def admin_profile():
     flash('无权限访问!', 'danger')
     return redirect(url_for('login'))
 
-
 # 用户管理/添加用户
 @app.route('/admin/users', methods=['GET', 'POST'])
 def admin_users():
@@ -193,20 +234,6 @@ def admin_users():
                     db.session.add(new_patient)
                     db.session.flush()  # 获取生成的 patient_id
                     role_id = new_patient.patient_id
-
-                elif role == 'doctor':
-                    name = request.form.get('name')
-                    gender = request.form.get('gender')
-                    department = request.form.get('department')
-                    title = request.form.get('title')
-                    contact_number = request.form.get('contact_number')
-                    doctor_id = request.form.get('doctor_id')  # 医生 ID 需手动生成
-                    new_doctor = Doctor(
-                        doctor_id=doctor_id, name=name, gender=gender, department=department, title=title, contact_number=contact_number
-                    )
-                    db.session.add(new_doctor)
-                    db.session.flush()  # 获取生成的 doctor_id
-                    role_id = new_doctor.doctor_id
 
                 elif role == 'worker':
                     name = request.form.get('name')
@@ -259,7 +286,7 @@ def admin_users():
 
         # 分页处理
         users = query.order_by(User.role, User.role_id).offset((page - 1) * per_page).limit(per_page).all()
-        total_pages = (total_users + per_page - 1) // per_page
+        total_pages = (total_users + per_page - 1) // per_page  # 计算总页数
 
         return render_template(
             'admin_users.html',
@@ -267,12 +294,49 @@ def admin_users():
             selected_role=selected_role,
             search_username=search_username,
             current_page=page,
-            total_pages=total_pages,
+            total_pages=total_pages,  # 传递总页数到前端
         )
     else:
         flash('无权限访问!', 'danger')
         return redirect(url_for('dashboard'))
 
+
+@app.route('/admin/users/delete/<uuid>', methods=['POST'])
+def delete_user(uuid):
+    if 'user_id' in session and session.get('role') == 'admin':
+        try:
+            # 获取要删除的用户
+            user = User.query.filter_by(uuid=uuid).first()
+            if user:
+                role = user.role
+                role_id = user.role_id
+
+                # 根据角色删除相应角色表数据
+                if role == 'patient':
+                    patient = Patient.query.filter_by(patient_id=role_id).first()
+                    if patient:
+                        db.session.delete(patient)
+                elif role == 'worker':
+                    worker = Worker.query.filter_by(worker_id=role_id).first()
+                    if worker:
+                        db.session.delete(worker)
+                elif role == 'admin':
+                    admin = Admin.query.filter_by(admin_id=role_id).first()
+                    if admin:
+                        db.session.delete(admin)
+
+                # 删除用户
+                db.session.delete(user)
+                db.session.commit()
+                flash(f"用户 {user.username} 已成功删除", 'success')
+            else:
+                flash("未找到用户", 'danger')
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"删除失败: {str(e)}", 'danger')
+
+    return redirect(url_for('admin_users'))
 
 
 # 用户名查重
@@ -333,26 +397,29 @@ def edit_user(uuid):
         return redirect(url_for('dashboard'))
 
 
-# 删除用户
-@app.route('/admin/users/delete/<uuid>', methods=['POST'])
-def delete_user(uuid):
-    if 'user_id' in session and session.get('role') == 'admin':
-        user = User.query.get_or_404(uuid)
-        db.session.delete(user)
-        db.session.commit()
-        flash(f"用户 {user.username} 删除成功!", 'success')
-        return redirect(url_for('admin_users'))
-    else:
-        flash('无权限访问!', 'danger')
-        return redirect(url_for('dashboard'))
+# # 删除用户
+# @app.route('/admin/users/delete/<uuid>', methods=['POST'])
+# def delete_user(uuid):
+#     if 'user_id' in session and session.get('role') == 'admin':
+#         user = User.query.get_or_404(uuid)
+#         db.session.delete(user)
+#         db.session.commit()
+#         flash(f"用户 {user.username} 删除成功!", 'success')
+#         return redirect(url_for('admin_users'))
+#     else:
+#         flash('无权限访问!', 'danger')
+#         return redirect(url_for('dashboard'))
 
 # 分配任务
+from flask import jsonify
+
 @app.route('/admin/assign_tasks', methods=['GET', 'POST'])
 def assign_tasks():
     if 'user_id' in session and session.get('role') == 'admin':
         if request.method == 'POST':
             task_id = request.form.get('task_id')
             operation = request.form.get('operation')  # 'assign' or 'rollback'
+            print(f"Received operation: {operation} for task_id: {task_id}")
 
             if operation == 'assign':
                 worker_id = int(request.form.get('worker_id'))
@@ -363,19 +430,15 @@ def assign_tasks():
                 worker = Worker.query.get_or_404(worker_id)
 
                 # 检查任务分配规则
+                print(f"Assigning task {task_id} to worker {worker_id} for task type {task_type}")
+
                 if task_type == 'formulate' and not task.receive_time:
-                    return f"<script>alert('必须完成收方后才能分配配方任务!');window.location.href='{url_for('assign_tasks')}'</script>"
+                    print("Error: Receive step not completed")
+                    return jsonify({'success': False, 'message': '必须完成收方后才能分配配方任务!'})
 
                 if task_type == 'decoction' and not task.form_time:
-                    return f"<script>alert('必须完成配方后才能分配煎药任务!');window.location.href='{url_for('assign_tasks')}'</script>"
-
-                # 检查是否分配给同一工人
-                if (
-                    (task_type == 'receive' and (worker_id == task.form_worker_id or worker_id == task.decoction_worker_id)) or
-                    (task_type == 'formulate' and (worker_id == task.receive_worker_id or worker_id == task.decoction_worker_id)) or
-                    (task_type == 'decoction' and (worker_id == task.receive_worker_id or worker_id == task.form_worker_id))
-                ):
-                    return f"<script>alert('同一任务的不同阶段不能分配给同一个工人!');window.location.href='{url_for('assign_tasks')}'</script>"
+                    print("Error: Formulate step not completed")
+                    return jsonify({'success': False, 'message': '必须完成配方后才能分配煎药任务!'})
 
                 # 分配任务
                 if task_type == 'receive':
@@ -389,51 +452,50 @@ def assign_tasks():
                     task.decoction_worker_name = worker.name
 
                 db.session.commit()
-                return f"<script>alert('任务 {task_id} 成功分配给工人 {worker.name}!');window.location.href='{url_for('assign_tasks')}'</script>"
+                print(f"Task {task_id} successfully assigned to {worker.name}")
+                return jsonify({'success': True, 'message': f'任务 {task_id} 成功分配给工人 {worker.name}!'})
 
             elif operation == 'rollback':
                 rollback_password = request.form.get('rollback_password')
                 admin_user = User.query.filter_by(uuid=session['user_id']).first()
 
-                # 验证管理员密码是否正确
                 if not admin_user or admin_user.password != rollback_password:
-                    return f"<script>alert('操作密码错误! 无法执行回退操作。');window.location.href='{url_for('assign_tasks')}'</script>"
+                    return jsonify({'success': False, 'message': '操作密码错误! 无法执行回退操作。'})
 
-                # 获取任务信息
                 task = Task.query.get_or_404(task_id)
 
-                # 回退逻辑
-                if task.decoction_end_time:
-                    task.decoction_end_time = None
-                    task.status = '未完成'
-                elif task.decoction_start_time:
-                    task.decoction_start_time = None
-                elif task.form_time:
-                    task.form_time = None
-                elif task.receive_time:
-                    task.receive_time = None
-                else:
-                    return f"<script>alert('当前任务已在最初阶段，无法回退。');window.location.href='{url_for('assign_tasks')}'</script>"
+                # 获取回退阶段
+                rollback_phase = request.form.get('rollback_phase')
 
-                db.session.commit()
-                return f"<script>alert('任务 {task_id} 已成功回退到前一阶段!');window.location.href='{url_for('assign_tasks')}'</script>"
+                # 回退逻辑
+                if rollback_phase == 'receive' and task.receive_time:
+                    task.receive_time = None
+                    task.receive_worker_id = None
+                    task.receive_worker_name = None
+                    task.status = '未完成'  # 状态变为未完成
+                    db.session.commit()
+                    return jsonify({'success': True, 'message': f"任务 {task_id} 已成功回退到收方前!"})
+
+                elif rollback_phase == 'formulate' and task.form_time:
+                    task.form_time = None
+                    task.form_worker_id = None
+                    task.form_worker_name = None
+                    db.session.commit()
+                    return jsonify({'success': True, 'message': f"任务 {task_id} 已成功回退到配方前!"})
+
+                # 检查并回退到其他阶段
+                # ... (同样的逻辑可以应用于其他阶段)
+
+                else:
+                    return jsonify({'success': False, 'message': '无法回退到该阶段。'})
 
         # 查询任务统计信息
         unfinished_tasks = Task.query.filter(Task.status != '完成').count()
         finished_tasks = Task.query.filter(Task.status == '完成').count()
 
-        stats = {
-            'unfinished_orders': unfinished_tasks,
-            'finished_orders': finished_tasks
-        }
+        stats = {'unfinished_orders': unfinished_tasks, 'finished_orders': finished_tasks}
 
-        # 查询任务列表并排序（未完成任务优先，其次按任务 ID 排序）
-        tasks = Task.query.order_by(
-            Task.status.desc(),
-            Task.task_id.asc()
-        ).all()
-
-        # 提取任务状态信息
+        tasks = Task.query.order_by(Task.status.desc(), Task.task_id.asc()).all()
         for task in tasks:
             if task.decoction_end_time:
                 task.phase_status = "煎药已完成"
@@ -451,6 +513,7 @@ def assign_tasks():
 
     flash('无权限访问!', 'danger')
     return redirect(url_for('dashboard'))
+
 
 # 医生个人信息页面
 @app.route('/doctor/profile', methods=['GET', 'POST'])
@@ -512,8 +575,32 @@ def create_prescription():
                 status='待配方'  # 默认状态
             )
             db.session.add(new_prescription)
-            db.session.commit()
-            flash('处方创建成功!', 'success')
+            db.session.commit()  # 这里提交事务，生成处方ID
+
+            # 获取新生成的处方ID
+            prescription_id = new_prescription.prescription_id
+
+            # 创建新任务，仅填写处方id，其他为空
+            new_task = Task(
+                prescription_id=prescription_id,
+                receive_worker_id=None,
+                receive_worker_name=None,
+                form_worker_id=None,
+                form_worker_name=None,
+                decoction_worker_id=None,
+                decoction_worker_name=None,
+                admin_id=None,
+                admin_name=None,
+                receive_time=None,
+                form_time=None,
+                decoction_start_time=None,
+                decoction_end_time=None,
+                status='未完成'  # 默认任务状态
+            )
+            db.session.add(new_task)
+            db.session.commit()  # 提交任务数据
+
+            flash('处方创建成功，并已生成任务!', 'success')
             return redirect(url_for('doctor_prescriptions'))
 
         # 获取所有患者信息（供下拉选择患者）
@@ -523,6 +610,7 @@ def create_prescription():
     else:
         flash('无权限访问!', 'danger')
         return redirect(url_for('dashboard'))
+
 
 
 # 医生查看处方

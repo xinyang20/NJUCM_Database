@@ -93,10 +93,6 @@
             {% elif session['role'] == 'patient' %}
                 <a href="/patient/profile">个人信息</a>
                 <a href="/patient/prescriptions">查看处方</a>
-            {% elif session['role'] == 'doctor' %}
-                <a href="/doctor/profile">个人信息</a>
-                <a href="/doctor/prescriptions">我的处方</a>
-                <a href="/doctor/prescriptions/new">开新处方</a>
             {% elif session['role'] == 'worker' %}
                 <a href="/worker/profile">个人信息</a>
                 <a href="/worker/tasks">我的任务</a>
@@ -119,7 +115,6 @@
         <select name="role" id="role-select" onchange="updateRoleForm()" required>
             <option value="">选择角色</option>
             <option value="patient">患者</option>
-            <option value="doctor">医生</option>
             <option value="worker">工人</option>
             <option value="admin">管理员</option>
         </select>
@@ -143,18 +138,11 @@
             </div>
             <div>
                 <label for="username-search">用户名:</label>
-                <input
-                    type="text"
-                    id="username-search"
-                    name="username"
-                    placeholder="输入用户名"
-                    value="{{ request.args.get('username', '') }}">
+                <input type="text" id="username-search" name="username" placeholder="输入用户名" value="{{ request.args.get('username', '') }}">
             </div>
             <button type="submit">查询</button>
         </form>
     </div>
-
-
 
     <table>
         <thead>
@@ -182,7 +170,11 @@
         </tbody>
     </table>
 
-    <div class="pagination" id="pagination"></div>
+    <div class="pagination">
+        {% for page_num in range(1, total_pages + 1) %}
+            <button class="{{ 'active' if page_num == current_page else '' }}" onclick="changePage({{ page_num }})">{{ page_num }}</button>
+        {% endfor %}
+    </div>
 
     <!-- 删除确认弹窗 -->
     <div id="deleteModal" class="modal">
@@ -202,38 +194,12 @@
     </footer>
 
     <script>
-        const rowsPerPage = 10;
-        const rows = document.querySelectorAll('.user-row');
-        const pagination = document.getElementById('pagination');
 
-        function displayPage(page) {
-            const start = (page - 1) * rowsPerPage;
-            const end = start + rowsPerPage;
-
-            rows.forEach((row, index) => {
-                row.style.display = index >= start && index < end ? '' : 'none';
-            });
+        function changePage(pageNum) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', pageNum);
+            window.location.href = url.toString();
         }
-
-        function setupPagination() {
-            const totalPages = Math.ceil(rows.length / rowsPerPage);
-            pagination.innerHTML = '';
-
-            for (let i = 1; i <= totalPages; i++) {
-                const button = document.createElement('button');
-                button.textContent = i;
-                button.className = i === 1 ? 'active' : '';
-                button.addEventListener('click', () => {
-                    document.querySelector('.pagination button.active').classList.remove('active');
-                    button.classList.add('active');
-                    displayPage(i);
-                });
-                pagination.appendChild(button);
-            }
-        }
-
-        displayPage(1);
-        setupPagination();
 
         function openDeleteModal(uuid) {
             const modal = document.getElementById('deleteModal');
@@ -290,25 +256,6 @@
                     <input type="number" name="age" placeholder="年龄" required>
                     <label for="contact_number">联系方式:</label>
                     <input type="text" name="contact_number" placeholder="联系方式" required>
-                `;
-            } else if (role === 'doctor') {
-                roleForm.innerHTML = `
-                    <label for="name">姓名:</label>
-                    <input type="text" name="name" placeholder="姓名" required>
-                    <label for="gender">性别:</label>
-                    <select name="gender" required>
-                        <option value="">选择性别</option>
-                        <option value="男">男</option>
-                        <option value="女">女</option>
-                    </select>
-                    <label for="department">科室:</label>
-                    <input type="text" name="department" placeholder="科室" required>
-                    <label for="title">职称:</label>
-                    <input type="text" name="title" placeholder="职称" required>
-                    <label for="contact_number">联系方式:</label>
-                    <input type="text" name="contact_number" placeholder="联系方式" required>
-                    <label for="doctor_id">医生 ID (规则生成):</label>
-                    <input type="number" name="doctor_id" placeholder="医生 ID" required>
                 `;
             } else if (role === 'worker') {
                 roleForm.innerHTML = `
