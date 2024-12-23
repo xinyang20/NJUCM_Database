@@ -6,7 +6,7 @@ GO
 USE SDDB;
 GO
 
--- 创建用户表
+-- 创建用户表1
 CREATE TABLE users (
     uuid UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(), -- 用户全局唯一标识
     username VARCHAR(50) NOT NULL UNIQUE,             -- 用户名
@@ -16,7 +16,7 @@ CREATE TABLE users (
 );
 GO
 
--- 创建患者表
+-- 创建患者表1
 CREATE TABLE patients (
     patient_id INT PRIMARY KEY IDENTITY(10000001, 1), -- 患者 ID，8 位数字，自动生成
     name VARCHAR(50) NULL,                            -- 患者姓名
@@ -25,7 +25,7 @@ CREATE TABLE patients (
     contact_number VARCHAR(15) NULL                  -- 联系方式
 );
 GO
-
+-- 1
 CREATE TABLE doctors (
     doctor_id INT PRIMARY KEY,                        -- 医生 ID，规则生成
     name VARCHAR(50) NULL,                            -- 医生姓名
@@ -50,7 +50,7 @@ CREATE TABLE admins (
     contact_number VARCHAR(15) NULL                  -- 联系方式
 );
 GO
-
+-- 1
 CREATE TABLE prescriptions (
     prescription_id INT PRIMARY KEY IDENTITY(1, 1),   -- 处方 ID，自动生成
     patient_id INT NULL FOREIGN KEY REFERENCES patients(patient_id), -- 关联患者
@@ -62,7 +62,7 @@ CREATE TABLE prescriptions (
     expected_pickup_time DATETIME NULL               -- 预计取药时间（触发器自动计算）
 );
 GO
-
+-- 1
 CREATE TABLE tasks (
     task_id INT PRIMARY KEY IDENTITY(1, 1),           -- 任务 ID，自动生成
     prescription_id INT NULL FOREIGN KEY REFERENCES prescriptions(prescription_id), -- 关联处方
